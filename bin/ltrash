@@ -1,0 +1,357 @@
+#!/usr/bin/env perl
+# =========================================== #
+# 如有BUG 请提交Issues                        #
+# https://github.com/Arondight/ltrash/issues  #
+#                                             #
+#         Copyright (C) 2014-2015 秦凡东      #
+# =========================================== #
+package main;
+
+use strict;
+use warnings;
+use 5.010;
+use App::ltrash;
+
+use subs qw {
+  _os_check
+};
+
+MAIN: {
+  die "DIE: 脚本目前不支持当前操作系统（$^O）。"
+    unless main::_os_check;
+
+  my $ltrash = App::ltrash->new (@ARGV);
+
+  exit 1
+    unless $ltrash->run;
+
+  $ltrash->DESTORY;
+
+  exit 0;
+}
+
+# =========================
+# 检查操作系统是否被支持
+# 对于不支持的OS 返回0
+#
+sub _os_check {
+  my @support_os = qw {
+    linux bsd
+  };
+
+  return map { $^O =~ /$_/i } @support_os;
+}
+
+1;
+
+=encoding utf8
+
+=head1 名称
+
+ltrash - A GNU/Linux Trash
+
+E<lt>https://github.com/Arondight/ltrashE<gt>
+
+=head1 使用方法
+
+ltrash [辅助选项]... [动作选项] [文件名|匹配串]...
+
+=head1 动作选项
+
+=over 4
+
+=item -d, --delete
+
+删除文件到回收站。
+
+此时-t/-n/-N/-c/-l/-p 参数有效。
+
+=item -E, --Erase
+
+从回收站中彻底删除文件。
+
+此时-b/-e/-t/-n/-N/-c/-t 参数有效。
+
+=item -C, --Clean
+
+清空回收站。
+
+此时-f 参数有效。
+
+=item -a, --list-all
+
+打印回收站文件的列表。
+
+此时-b/-e/-t/-n/-N/-c 参数有效。
+
+=item -s, --search
+
+查找回收站中的文件。
+
+此时-b/-e/-t/-n/-N/-c/-p 参数有效。
+
+=item -r, --recover
+
+从回收站中恢复删除的文件。
+
+=item -v, --version
+
+打印程序版本。
+
+=item -h, --help
+
+打印帮助信息。
+
+=item -m, --man
+
+打印该手册。
+
+=item --which-invalid-dir
+
+打印无效文件存放目录
+
+=item --clean-invalid-file
+
+删除所有无效文件
+
+=back
+
+=head1 辅助选项
+
+=over 4
+
+=item -p, --pcre
+
+匹配文件时采用PCRE 正则表达式。
+
+=item -f, --force
+
+使用默认行为而不进行确认询问。
+
+=item -l, --link-follow
+
+操作链接指向的目标而非链接本身。
+
+=item -c, --count-number
+
+只打印处理的文件数量而非具体信息。
+
+=item -b, --begin-time
+
+起始时间。对-d 参数无效。格式请查看C<L<"时间格式">>小节。
+
+=item -e, --end-time
+
+终止时间。对-d 参数无效。格式请查看C<L<"时间格式">>小节。
+
+=item -t, --type
+
+文件类型。格式请查看C<L<"类型格式">>小节。
+
+=item -n, --min-size
+
+大小下限，格式请查看C<L<"大小格式">>小节。
+
+=item -N, --max-size
+
+大小上限，格式请查看C<L<"大小格式">>小节。
+
+=back
+
+=head1 时间格式
+
+-b, --begin-time/-e, --end-time 可以是以下格式：
+
+=over 4
+
+=item 时间点格式：yyyy-mm-dd-hh-mm-ss
+
+其中各部分代表：年-月-日-时-分-秒。忽略部分会设定为0，但是唯有年份不得忽略。
+可以使用C<:> | C<.> | C</> | C<_> | C<-> 中的任何一个作为分隔符。
+
+=item 时间偏移格式：number[y|m|d|h|M|s]
+
+其中各部分代表：数值[年|月|日|时|分|秒]。数值（整数或小数）后跟一个单字符后缀，
+代表现在之前的一个时间点。例如C<1M> 代表一分钟之前的一个时间点。
+
+=item 时间别名：now
+
+表示现在。只能用于-e 参数之后。
+
+=back
+
+=head1 类型格式
+
+-t, --type 可以是以下类型，你可以只使用前三个字母，并且大小写不敏感：
+
+=over 4
+
+=item any 表示任何文件
+
+相当于没有指定-t, --type 参数。
+
+=item directory 表示目录文件
+
+包括Windows 系统中的“文件夹”。
+
+=item regular 表示普通文件
+
+包括本列表中所有其后的类型。
+
+=item text 表示文本文件
+
+如果文件同时是文本文件和脚本，会被识别为脚本。
+
+C<txt> 与C<text> 的含义相同。
+
+=item script 表示脚本文件
+
+能够识别大部分脚本。并且会将所有以"#!/" 开头的文本文件当作脚本。
+
+C<scp>、C<cpt>、C<scpt> 与C<script> 的含义相同
+
+=item image 表示图片文件
+
+C<img> 与C<image> 的含义相同
+
+=item audio 表示音频文件
+
+当文件类型可以同时被认为是视频和音频时，优先认定为视频文件。
+
+C<ado> 与C<audio> 的含义相同
+
+=item video 表示视频文件
+
+C<vdo> 与C<video> 的含义相同
+
+=item execute 表示二进制可执行文件
+
+Windows/Linux 下的二进制可执行文件和所有库文件都会被匹配。
+
+=item archive 表示归档文件
+
+C<zip> 与C<archive> 的含义相同。
+
+=back
+
+=head1 大小格式
+
+-n, --min-size/-N, --max-size 只能是下面一种格式：
+
+=over 4
+
+=item number[b|k|m|g|t]
+
+其中number 表示一个数值（整数或者小数）。
+C<b>、C<k>、C<m>、C<g>、C<t> 分别表示C<Byte>、C<KiB>、C<MiB>、C<GiB>、C<TiB>。
+也就是说它们都是以1024 进制为单位的。不跟单位则默认单位为C<Byte>。
+另外你可以使用（但似乎没什么意义）一些更大的单位，它们分别为：
+C<p>、C<e>、C<z>、C<y> 分别表示C<PiB>、C<EiB>、C<ZiB>、C<YiB>。
+
+=back
+
+=head1 特性
+
+=over 4
+
+=item 1
+
+在使用通配符的时候，如果B<两端不加引号，通配符会被shell 解释>，这很可能不是你想要的结果。
+例如当前目录下存在文件"file.1" 和"file.2"，指令C<ltrash -E I<*>>等同于
+C<ltrash -E file.1 file.2>，而指令C<ltrash -E I<'*'>>等同于清空回收站。
+这是shell 的特性而非程序的缺陷。
+
+=item 2
+
+桌面环境回收站不同的是，程序不会只处理回收站目录所在设备上的文件（例如删除你移动硬盘NTFS 分区中的文件）。
+删除之后桌面环境（例如Xfce4）的回收站无法正确还原这个项目，
+但是程序可以——不过还原时目标分区的挂载点必须和删除时一致——所以不要用桌面环境回收站程序还原这些项目，
+请使在B<与删除时相同的挂载操作>后还原或者不要处理这样的文件。这是程序的少做之过。
+当然如果没有正确挂载设备，恢复文件并不会带来灾难性的后果——程序会跳过这个文件。
+
+=back
+
+=head1 示例
+
+=over 4
+
+=item * 删除文件file、目录dir 和软链接link 指向的目标文件
+
+C<ltrash -l -d file dir link>
+
+=item * 删除当前目录下所有大小不足3MiB 的音频文件
+
+C<ltrash -N 3m -t ado -d I<*>>
+
+=item * 使用PCRE 正则表达式匹配并恢复文件"saber" 和"saber lily"
+
+C<ltrash -p -r 'saber(\hlily)?'>
+
+=item * 查询删除日期为1987 年6 月5 日至今、大小在500Byte 到500KiB 之间的文本文件
+
+C<ltrash -b 1987/6/5 -n 500 -N 500k -t txt -a>
+
+=item * 恢复2014 年7 月到3 天前删除的大小超过2MiB 的音频文件
+
+C<ltrash -b 2014-7 -e 3d -n 2m -t ado -r I<'*'>>
+
+=item * 查找半小时前至今删除的隐藏图片文件的数量
+
+C<ltrash -b 0.5h -t img -s I<'.*'>>
+
+=back
+
+=head1 工作目录
+
+=over 4
+
+=item TRASH_PATH
+
+回收站的工作目录，通常来说其值等同于"$XDG_DATA_HOME/Trash"，
+如果环境变量$XDG_DATA_HOME 未被设置或者不是一个有效（存在且可写）的目录，
+其值将等同于"$HOME/.local/share/Trash"。
+
+如果你想要指定一个要操作的回收站工作目录，例如当你使用root
+权限时操作user用户的回收站，需要设置：
+
+C<export $XDG_DATA_HOME=/home/user/.local/share/Trash>
+
+=item TRASH_INFO_PATH
+
+回收站中信息文件所在目录，其值等同于"TRASH_PATH/info"。
+
+=item TRASH_FILE_PATH
+
+回收站中文件所在目录，其值等同于"TRASH_PATH/files"。
+
+=item TRASH_BACKUP_PATH
+
+回收站中存放"TRASH_FILE_PATH" 目录中失效文件的目录，其值等同于"TRASH_PATH/backup"。
+当一个已删除文件对应的信息文件丢失，就会被认为是一个失效的文件。
+当程序扫描到一个失效文件便将其移动到此目录。
+程序仅提供针对此目录的基本操作，使用下条指令切换到这个目录：
+
+C<cd $(ltrash --which-invalid-dir)>
+
+=back
+
+=head1 作者
+
+秦凡东   E<lt>shell_way@foxmail.comE<gt>
+
+=head1 版权
+
+Copyright (C) 2014-2015 秦凡东  
+
+此程序是自由软件；您可以以自由软件基金会发布的GNU通用公共许可协议第三版或（您可以选择）更高版方式重新发布它和/或修改它。
+此程序是希望其会有用而发布，但没有任何担保；没有甚至是暗含的适宜销售或特定目的适用性方面的担保。详情参看GNU通用公共许可协议。
+您应该与此程序一道收到了一份GNU通用公共许可协议的副本；如果没有，请查看E<lt>http://www.gnu.org/licenses/E<gt>。
+
+=head1 PS
+
+If your system cannot show the unicode charaters in this document, run:
+
+$ pod2text -c $(which ltrash)
+
+=cut
+

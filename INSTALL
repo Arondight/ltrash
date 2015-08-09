@@ -1,0 +1,34 @@
+ltrash - A GNU/Linux Trash
+
+安装：
+
+  1 为所有用户安装
+
+      perl Makefile.PL
+      make
+      make test
+      sudo make install
+
+  2 只为当前用户安装
+
+      perl Makefile.PL INSTALL_BASE=~
+      make
+      make test
+      make install
+
+    * 为当前用户安装则需要确保其PATH 包含~/bin，例如：
+
+        bash：echo 'export PATH=$PATH:~/bin' >> ~/.bashrc
+        zsh： echo 'path+=~/bin' >> ~/.zshrc
+
+  3 为其他机器安装
+
+      如果你准备安装到一台没有网络环境的机器上，建议打包项目
+
+      perl Makefile.PL
+      make dist
+
+备注：
+
+  * BSD 系统上的运行未经过测试。
+

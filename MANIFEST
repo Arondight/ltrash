@@ -1,0 +1,49 @@
+# ignore list
+.gitignore
+
+# Makemaker
+MANIFEST
+MANIFEST.SKIP
+Makefile.PL
+
+# 文档
+TODO
+INSTALL
+README.md
+LICENSE
+Changes
+
+# 脚本
+bin/ltrash
+
+# 模块
+lib/App/ltrash.pm
+lib/App/ltrash/_get_matching_file.pm
+lib/App/ltrash/_get_path.pm
+lib/App/ltrash/_get_readable_time.pm
+lib/App/ltrash/_file_type.pm
+lib/App/ltrash/_wildcard_to_regex.pm
+lib/App/ltrash/_get_size.pm
+lib/App/ltrash/_file_deep_copy.pm
+lib/App/ltrash/_delete_file.pm
+lib/App/ltrash/_backup_invalid_file.pm
+lib/App/ltrash/_url_encode.pm
+lib/App/ltrash/_print_man.pm
+lib/App/ltrash/_file_filter.pm
+lib/App/ltrash/_remove_file.pm
+
+# 单元测试
+t/11_ltrash.t
+t/21_delete_file.t
+t/22_backup_invalid_file.t
+t/23_file_filter.t
+t/24_get_matching_file.t
+t/25_get_path.t
+t/26_get_readable_time.t
+t/31_get_size.t
+t/32_file_deep_copy.t
+t/33_remove_file.t
+t/34_file_type.t
+t/35_url_encode.t
+t/36_wildcard_to_regex.t
+

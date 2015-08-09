@@ -1,0 +1,9 @@
+# vim backup files
+~$
+# vim swap files
+\.swp$
+# manual backup files
+\.bak$
+# CVS old revision files
+\#
+
